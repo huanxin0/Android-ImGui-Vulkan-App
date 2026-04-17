@@ -1,0 +1,20 @@
+{
+  "allFiles": [
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/SkyPlugin/app/build.gradle",
+      "selection": {
+        "end": {
+          "column": 31,
+          "index": 158,
+          "line": 6
+        },
+        "start": {
+          "column": 31,
+          "index": 158,
+          "line": 6
+        }
+      }
+    }
+  ],
+  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/SkyPlugin/app/build.gradle"
+}

@@ -1,0 +1,20 @@
+# 编译产物（不提交）
+*.o
+*.exe
+*.dll
+
+
+# 依赖目录（不提交）
+node_modules/
+vendor/
+
+# 配置文件（不提交）
+.env
+config.local
+
+# IDE 缓存（不提交）
+.idea/
+app/build/
+app/.cxx/
+.vscode/
+__pycache__/
