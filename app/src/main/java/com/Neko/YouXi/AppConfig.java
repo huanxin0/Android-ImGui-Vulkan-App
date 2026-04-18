@@ -18,7 +18,6 @@ public class AppConfig {
     public static boolean app_Operation_mode_root = false;
     public static boolean 防录屏 = false;
     public static boolean 兼容模式 = false;
-    public static int 设置帧率 = 60;
     public static long 触摸更新频率 = 24L;
 
 

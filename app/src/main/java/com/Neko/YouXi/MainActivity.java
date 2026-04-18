@@ -2,45 +2,44 @@ package com.Neko.YouXi;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.text.InputType;
-import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.cardview.widget.CardView;
-
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-
-import com.Neko.YouXi.Tools;
+import androidx.drawerlayout.widget.DrawerLayout;
 import com.Neko.YouXi.AppConfig;
-import com.Neko.YouXi.JniRoot;
 import com.Neko.YouXi.ImGuiViewService;
+import com.Neko.YouXi.JniRoot;
+import com.Neko.YouXi.R;
 import com.Neko.YouXi.Root.ImGuiAidlService;
+import com.Neko.YouXi.Tools;
+import com.Neko.YouXi.UI.AboutFragment;
+import com.Neko.YouXi.UI.HomeFragment;
+import com.Neko.YouXi.UI.SettingsFragment;
 
 public class MainActivity extends Activity {
 
     private static MainActivity instance;
-    private EditText keyEditText;
+    private DrawerLayout drawerLayout;
+    private FrameLayout contentFrame;
 
     public static MainActivity getInstance() {
         return instance;
@@ -72,84 +71,156 @@ public class MainActivity extends Activity {
         } catch (RemoteException e) {
             e.printStackTrace();
         }
+        
+        if (savedInstanceState == null) {
+            switchToFragment(new HomeFragment());
+        }
     }
 
     private View createMainLayout() {
-        LinearLayout rootLayout = new LinearLayout(this);
-        rootLayout.setLayoutParams(new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.MATCH_PARENT));
-        rootLayout.setOrientation(LinearLayout.VERTICAL);
-        rootLayout.setGravity(Gravity.CENTER);
-        rootLayout.setPadding(20, 20, 20, 20);
-        rootLayout.setBackgroundColor(Color.WHITE);
+        drawerLayout = new DrawerLayout(this);
+        drawerLayout.setLayoutParams(new DrawerLayout.LayoutParams(DrawerLayout.LayoutParams.MATCH_PARENT, DrawerLayout.LayoutParams.MATCH_PARENT));
+        drawerLayout.setBackgroundColor(Color.WHITE);
+        drawerLayout.setScrimColor(Color.parseColor("#99000000"));
 
-        CardView iconCard = new CardView(this);
-        iconCard.setLayoutParams(new CardView.LayoutParams(
-            CardView.LayoutParams.WRAP_CONTENT,
-            CardView.LayoutParams.WRAP_CONTENT));
-        iconCard.setRadius(15);
-        iconCard.setCardElevation(0);
-        
-        ImageView iconImage = new ImageView(this);
-        iconImage.setLayoutParams(new LinearLayout.LayoutParams(200, 200));
-        iconImage.setImageResource(com.Neko.YouXi.R.drawable.ic_launcher);
-        iconCard.addView(iconImage);
-        rootLayout.addView(iconCard);
+        contentFrame = new FrameLayout(this);
+        contentFrame.setId(View.generateViewId());
+        contentFrame.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        drawerLayout.addView(contentFrame);
 
-        TextView titleText = new TextView(this);
-        titleText.setLayoutParams(new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.WRAP_CONTENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT));
-        titleText.setText("莜汐");
-        titleText.setTextSize(24);
-        titleText.setTypeface(Typeface.MONOSPACE);
-        titleText.setGravity(Gravity.CENTER);
-        ((LinearLayout.LayoutParams) titleText.getLayoutParams()).topMargin = 5;
-        rootLayout.addView(titleText);
+        LinearLayout navView = createNavigationView();
+        DrawerLayout.LayoutParams navParams = new DrawerLayout.LayoutParams(dpToPx(280), DrawerLayout.LayoutParams.MATCH_PARENT, Gravity.START);
+        navView.setLayoutParams(navParams);
+        drawerLayout.addView(navView);
 
-        TextInputLayout textInputLayout = new TextInputLayout(this);
-        LinearLayout.LayoutParams inputLayoutParams = new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT);
-        inputLayoutParams.topMargin = 20;
-        textInputLayout.setLayoutParams(inputLayoutParams);
-        textInputLayout.setHint("请输入卡密");
-        textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_FILLED);
-
-        TextInputEditText textInputEditText = new TextInputEditText(this);
-        textInputEditText.setLayoutParams(new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT));
-        textInputEditText.setImeOptions(EditorInfo.IME_ACTION_DONE);
-        textInputEditText.setInputType(InputType.TYPE_CLASS_TEXT);
-        textInputEditText.setBackground(null);
-
-        keyEditText = textInputEditText;
-        textInputLayout.addView(textInputEditText);
-        rootLayout.addView(textInputLayout);
-
-        MaterialButton verifyButton = new MaterialButton(this);
-        LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT);
-        buttonParams.topMargin = 20;
-        verifyButton.setLayoutParams(buttonParams);
-        verifyButton.setText("开启");
-        verifyButton.setOnClickListener(v -> onVerifyKey());
-        rootLayout.addView(verifyButton);
-
-        return rootLayout;
+        return drawerLayout;
     }
 
-    private void onVerifyKey() {
-        String key = keyEditText != null ? keyEditText.getText().toString() : "";
-        if (key.isEmpty()) {
-            Toast.makeText(this, "请输入卡密", Toast.LENGTH_SHORT).show();
-        } else {
-            KeyboardViewService.showFloat(MainActivity.this);
-            ImGuiViewService.showFloatWindow(MainActivity.this);
+    private LinearLayout createNavigationView() {
+        LinearLayout navView = new LinearLayout(this);
+        navView.setOrientation(LinearLayout.VERTICAL);
+        navView.setBackgroundColor(Color.WHITE);
+        navView.setElevation(dpToPx(16));
+
+        LinearLayout navHeader = createNavHeader();
+        LinearLayout.LayoutParams headerParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(160));
+        navHeader.setLayoutParams(headerParams);
+        navView.addView(navHeader);
+
+        View divider = new View(this);
+        divider.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(1)));
+        divider.setBackgroundColor(Color.parseColor("#E0E0E0"));
+        navView.addView(divider);
+
+        addNavItemWithoutIcon(navView, "首页");
+        addNavItemWithoutIcon(navView, "设置");
+        addNavItemWithoutIcon(navView, "关于");
+
+        View spacer = new View(this);
+        spacer.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
+        navView.addView(spacer);
+
+        return navView;
+    }
+
+    private LinearLayout createNavHeader() {
+        LinearLayout headerContainer = new LinearLayout(this);
+        headerContainer.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        headerContainer.setOrientation(LinearLayout.VERTICAL);
+        
+        ImageView backgroundImage = new ImageView(this);
+        backgroundImage.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        backgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        backgroundImage.setImageResource(R.drawable.ic_launcher);
+        headerContainer.addView(backgroundImage);
+        
+        LinearLayout content = new LinearLayout(this);
+        content.setOrientation(LinearLayout.VERTICAL);
+        content.setGravity(Gravity.CENTER);
+        content.setPadding(dpToPx(24), dpToPx(32), dpToPx(24), dpToPx(24));
+        content.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        
+        ImageView avatar = new ImageView(this);
+        avatar.setLayoutParams(new LinearLayout.LayoutParams(dpToPx(70), dpToPx(70)));
+        avatar.setImageResource(R.drawable.ic_launcher);
+        avatar.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            avatar.setClipToOutline(true);
         }
+        content.addView(avatar);
+        
+        TextView appName = new TextView(this);
+        appName.setText("莜汐");
+        appName.setTextSize(20);
+        appName.setTextColor(Color.WHITE);
+        appName.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        appName.setPadding(0, dpToPx(12), 0, 0);
+        content.addView(appName);
+        
+        TextView version = new TextView(this);
+        version.setText("v1.0.0");
+        version.setTextSize(12);
+        version.setTextColor(Color.parseColor("#CCFFFFFF"));
+        content.addView(version);
+        
+        headerContainer.addView(content);
+        
+        return headerContainer;
+    }
+
+    private void addNavItemWithoutIcon(LinearLayout parent, String title) {
+        LinearLayout item = new LinearLayout(this);
+        item.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(52)));
+        item.setOrientation(LinearLayout.HORIZONTAL);
+        item.setGravity(Gravity.CENTER_VERTICAL);
+        item.setPadding(dpToPx(20), 0, dpToPx(16), 0);
+        item.setClickable(true);
+        item.setFocusable(true);
+        
+        item.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    v.setBackgroundColor(Color.parseColor("#E8E8E8"));
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    v.setBackgroundColor(Color.TRANSPARENT);
+                    break;
+            }
+            return false;
+        });
+        
+        item.setOnClickListener(v -> {
+            switch (title) {
+                case "首页":
+                    switchToFragment(new HomeFragment());
+                    break;
+                case "设置":
+                    switchToFragment(new SettingsFragment());
+                    break;
+                case "关于":
+                    switchToFragment(new AboutFragment());
+                    break;
+            }
+            drawerLayout.closeDrawer(Gravity.START);
+        });
+
+        TextView text = new TextView(this);
+        text.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        text.setText(title);
+        text.setTextSize(16);
+        text.setTextColor(Color.parseColor("#1C1B1F"));
+        text.setGravity(Gravity.CENTER_VERTICAL);
+        item.addView(text);
+
+        parent.addView(item);
+    }
+
+    private void switchToFragment(Fragment fragment) {
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction transaction = fm.beginTransaction();
+        transaction.replace(contentFrame.getId(), fragment);
+        transaction.commit();
     }
 
     private float getMaxSupportedRefreshRate(Context context) {
@@ -183,8 +254,14 @@ public class MainActivity extends Activity {
     }
 
     private void setFullScreen() {
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                             WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        }
+        
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
@@ -194,6 +271,11 @@ public class MainActivity extends Activity {
             | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
             | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
         decorView.setSystemUiVisibility(uiOptions);
+    }
+
+    private int dpToPx(int dp) {
+        float density = getResources().getDisplayMetrics().density;
+        return Math.round(dp * density);
     }
 
     @Override

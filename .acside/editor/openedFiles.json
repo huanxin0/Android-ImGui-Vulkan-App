@@ -1,0 +1,95 @@
+{
+  "allFiles": [
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Android-ImGui-Vulkan-App/app/src/main/java/com/Neko/YouXi/MainActivity.java",
+      "selection": {
+        "end": {
+          "column": 1,
+          "index": 12064,
+          "line": 317
+        },
+        "start": {
+          "column": 1,
+          "index": 12064,
+          "line": 317
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Android-ImGui-Vulkan-App/app/src/main/java/com/Neko/YouXi/AppConfig.java",
+      "selection": {
+        "end": {
+          "column": 0,
+          "index": 740,
+          "line": 24
+        },
+        "start": {
+          "column": 0,
+          "index": 740,
+          "line": 24
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Android-ImGui-Vulkan-App/app/src/main/java/com/Neko/YouXi/UI/HomeFragment.java",
+      "selection": {
+        "end": {
+          "column": 1,
+          "index": 2698,
+          "line": 66
+        },
+        "start": {
+          "column": 1,
+          "index": 2698,
+          "line": 66
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Android-ImGui-Vulkan-App/app/src/main/java/com/Neko/YouXi/UI/SettingsFragment.java",
+      "selection": {
+        "end": {
+          "column": 1,
+          "index": 5029,
+          "line": 118
+        },
+        "start": {
+          "column": 1,
+          "index": 5029,
+          "line": 118
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Android-ImGui-Vulkan-App/app/src/main/java/com/Neko/YouXi/UI/AboutFragment.java",
+      "selection": {
+        "end": {
+          "column": 1,
+          "index": 8857,
+          "line": 205
+        },
+        "start": {
+          "column": 1,
+          "index": 8857,
+          "line": 205
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Android-ImGui-Vulkan-App/app/src/main/res/values/themes.xml",
+      "selection": {
+        "end": {
+          "column": 0,
+          "index": 286,
+          "line": 8
+        },
+        "start": {
+          "column": 0,
+          "index": 286,
+          "line": 8
+        }
+      }
+    }
+  ],
+  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Android-ImGui-Vulkan-App/app/src/main/res/values/themes.xml"
+}
